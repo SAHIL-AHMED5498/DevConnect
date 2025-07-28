@@ -1,57 +1,28 @@
 console.log("dev connect");
 
 const express=require("express");
+const {adminAuth,userAuth}=require("./middlewares/auth");
 
 const app=express();
 
-app.use(express.json());
+app.use("/admin",adminAuth);
 
-
-//send user data
-app.get("/user/:id",(req,res)=>{
-//    console.log(req.query);             //for query
-//    console.log(req.params);          //for parameters
-    res.send({name:"sahil",age:24,id:req.params.id});
+app.get("/admin/users",(req,res)=>{
+    res.send("all users data");
 })
 
-//create user data
-app.post("/user",(req,res)=>{
-
-    //saved to db
-
-    res.send("saved successfully")
+app.delete("/admin/users/:id",(req,res)=>{
+    const uid=req.params.id
+    res.send(`user of id ${uid} is deleted`);
 })
 
-//delete user data
-app.delete("/user",(req,res)=>{
-
-    //delete from db
-
-    res.send("successfully deleted");
-
+app.get("/user/:id",userAuth,(req,res)=>{
+    
+    const uid=req.params.id;
+    res.send(`user of id ${uid} data is given`);
 })
 
 
-//multi route
-
-app.use("/multiRoutes",
-    (req,res,next)=>{
-        console.log("response handler 1");
-        next();
-    },
-    (req,res,next)=>{
-        console.log("response handler 2");
-        next();
-        console.log("this will print after response handler 3 out of execution stack");
-    },
-    (req,res,next)=>{
-        console.log("response handler 3");
-
-        res.send("response handler 3 ");
-        console.log("last line of response handler 3");
-
-    }
-)
 
 
 
