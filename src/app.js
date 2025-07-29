@@ -15,12 +15,28 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use("/createUser",async(req,res)=>{
-        const {name,age}=req.params;
-        console.log(name,age)
+        const {name,age}=req.query;
+       // console.log(name,age)
 
         const userInstance= new user({name,age});
-        userInstance.save();
-        await res.send("successfully created");
+
+        try{   
+        if(name&&age){
+         userInstance.save();
+        await res.send("successfully created");}
+        else{
+            throw new error("bad request");
+        }
+        }
+        
+       
+
+        catch(err){
+            console.log(err);
+            res.status(400).send("error while saving..");
+
+        }
+     
     
 })
 
