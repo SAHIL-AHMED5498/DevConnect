@@ -1,32 +1,43 @@
 console.log("dev connect");
 
-const express=require("express");
-const {adminAuth,userAuth}=require("./middlewares/auth");
+const { db,user } = require("../src/config/database")
 
-const app=express();
+const express = require("express");
 
-app.use("/admin",adminAuth);
 
-app.get("/admin/users",(req,res)=>{
-    res.send("all users data");
-})
 
-app.delete("/admin/users/:id",(req,res)=>{
-    const uid=req.params.id
-    res.send(`user of id ${uid} is deleted`);
-})
+const app = express();
+// Add this middleware to parse JSON and urlencoded body data
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get("/user/:id",userAuth,(req,res)=>{
+
+
+
+app.use("/createUser",async(req,res)=>{
+        const {name,age}=req.params;
+        console.log(name,age)
+
+        const userInstance= new user({name,age});
+        userInstance.save();
+        await res.send("successfully created");
     
-    const uid=req.params.id;
-    res.send(`user of id ${uid} data is given`);
 })
 
 
 
 
+db()
+    .then(
+        () => {
+            console.log("connected to the db")
+            app.listen(3000, () => {
+            console.log("running on : http://localhost:3000");
+            })
+        }
+    )
+    .catch((err) => {
+        console.log("error while establishing connection")
+    })
 
 
-app.listen(3000,()=>{
-    console.log("running on : http://localhost:3000");
-})
