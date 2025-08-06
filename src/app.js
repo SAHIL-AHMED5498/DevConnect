@@ -5,7 +5,7 @@ const {user}= require("../src/models/user")
 const {validateSignup, validateEmail}=require("../src/utils/validateSignup")
 
 const express = require("express");
-const bcrypt=require("bcrypt")
+const bcrypt=require("bcrypt");
 
 
 
