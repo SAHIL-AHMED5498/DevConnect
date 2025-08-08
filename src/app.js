@@ -3,9 +3,12 @@ console.log("dev connect");
 const { db } = require("../src/config/database")
 const {user}= require("../src/models/user")
 const {validateSignup, validateEmail}=require("../src/utils/validateSignup")
+const {auth}=require("./middlewares/auth")
 
 const express = require("express");
 const bcrypt=require("bcrypt");
+const cookieParser=require("cookie-parser");
+const jwt=require("jsonwebtoken");
 
 
 
@@ -13,6 +16,7 @@ const app = express();
 // Add this middleware to parse JSON and urlencoded body data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 
 //SIGN UP 
@@ -31,7 +35,7 @@ try{
        // ENCRYPT PASSWORD
     const hashPassword = await bcrypt.hash(req.body.password, 10);
 
-    //SAVE TO THE DATABASE
+  //INSTANCE OF DOCUMENT CREATED
     const User=new user({
         email:req.body.email,
         password:hashPassword,
@@ -41,7 +45,7 @@ try{
         about:req.body.about,
         profileImg:req.body.profileImg
     })
-
+  //SAVE TO THE DATABASE
     await User.save();
     res.send("user successfully created");
    
@@ -70,6 +74,14 @@ app.post("/signIn",async(req,res)=>{
         const isValidPass=await bcrypt.compare(req.body.password,foundUser.password);
            //CHECK IF PASSWORD VALID &  //SEND USER AS A RESPONSE
         if(isValidPass){
+
+            //create a jwt token
+
+            const token=jwt.sign({_id:foundUser._id},"jwtwebtokensecret");
+            console.log(token);
+
+
+            res.cookie("token",token);
             res.send(foundUser);
         }
         else{
@@ -100,8 +112,9 @@ app.post("/createUser",async(req,res)=>{
        
 
         try{   
-        const userInstance= new user(req.body);  //SEND REQ DATA TO DB
+       
         if(req.body){
+        const userInstance= new user(req.body);  //CREATE INSTANCE OF USER MODEL
          await userInstance.save();  
          res.send("successfully created");}
         else{
@@ -120,24 +133,7 @@ app.post("/createUser",async(req,res)=>{
     
 })
 
-//TO GET THE USER
-app.get("/user",async(req,res)=>{
 
-    const email=req.body.email;
-try{  const foundUser=await user.findOne({email});
-    if(foundUser){
-        res.send(foundUser);
-    }
-    else{
-        res.status(400).send("user not found")
-    }}
-    catch(err){
-        res.status(401).send("something went wrong");
-        console.log(err);
-    }
-  
-
-})
 
 //GET ALL USERS
 app.get("/feed",async(req,res)=>{
@@ -207,7 +203,16 @@ try{
   
 
 })
+//PROFILE API
 
+app.get("/profile",auth,async(req,res)=>{
+
+    const foundUser=req?.foundUser;
+    res.status(200).send(foundUser);
+
+
+}
+)
 
 
  db()

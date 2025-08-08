@@ -1,30 +1,35 @@
+const jwt=require("jsonwebtoken");
+const {user}=require("../models/user");
 
-const adminAuth=(req,res,next)=>{
 
-    const {p}=req.query;
-    const isAuthenticated=(p=="admin");
+ const auth=async(req,res,next)=>{
+//Extract token from the req body
+const cookie=req?.cookies;
+const {token}=cookie;
+try{
+    //Verify token
+const decodedObj=await jwt.verify(token,"jwtwebtokensecret");
 
-    if(!isAuthenticated){
-        res.status(401).send("un authorised access");
-    }
-    else{
-        next();
-        
-    }
+const {_id}=decodedObj;
+
+//find user 
+const foundUser=await user.findById(_id)
+
+if(!foundUser){
+    throw new Error("user not found , try again")
+}
+//SET USER
+req.foundUser=foundUser;
+next();
+
+}
+catch(err){
+    res.status(400).send(`Auth Error ${err?.message}`);
 }
 
-const userAuth=(req,res,next)=>{
 
-    const {p}=req.query;
-    const isAuthenticated=(p=="user");
 
-    if(!isAuthenticated){
-        res.status(401).send("please , log in ");
-    }
-    else{
-        next();
-    }
 }
 
 
-module.exports={userAuth,adminAuth}
+module.exports={auth}
