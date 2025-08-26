@@ -8,9 +8,13 @@ const { connectionRequestRoutes } = require("./routes/connectionRequest");
 const { userRouter } = require("./routes/user");
 const cors=require("cors")
 
+const PORT = process.env.PORT || 3000;
+const HOST = "0.0.0.0";  // bind to all network interfaces
+
+
 const app = express();
 app.use(cors({
-    origin:"http://localhost:5173",
+   origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials:true
 }))
 app.use(express.json());
@@ -37,8 +41,8 @@ app.use("/",(req,res)=>{
     .then(
         () => {
             console.log("connected to the db")
-            app.listen(3000, () => {
-            console.log("running on : http://localhost:3000");
+            app.listen(PORT ,HOST, () => {
+              console.log(`🚀 Server running on port ${PORT}`);
             })
         }
     )
