@@ -7,7 +7,9 @@ const {user}=require("../models/user");
 const cookie=req?.cookies;
 const {token}=cookie;
 try{
-    //Verify token
+
+   
+ //Verify token
 const decodedObj=await jwt.verify(token,"jwtwebtokensecret");
 
 const {_id}=decodedObj;
@@ -24,7 +26,7 @@ next();
 
 }
 catch(err){
-    res.status(400).send(`Auth Error ${err?.message}`);
+    res.status(401).send(`Auth Error ${err?.message}`);
 }
 
 

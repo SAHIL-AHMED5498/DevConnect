@@ -1,133 +1,36 @@
 console.log("dev connect");
-
 const { db } = require("../src/config/database")
-const {user}= require("../src/models/user")
-const {validateSignup, validateEmail}=require("../src/utils/validateSignup")
-const {auth}=require("./middlewares/auth")
-
 const express = require("express");
-const bcrypt=require("bcrypt");
 const cookieParser=require("cookie-parser");
-const jwt=require("jsonwebtoken");
-
-
+const {authRouter}=require("./routes/auth")
+const {profileRouter}=require("./routes/profile");
+const { connectionRequestRoutes } = require("./routes/connectionRequest");
+const { userRouter } = require("./routes/user");
+const cors=require("cors")
 
 const app = express();
-// Add this middleware to parse JSON and urlencoded body data
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
-//SIGN UP 
-app.post("/signUp",async(req,res)=>{
- 
-    
-try{
-        //VALIDATE REQ DATA 
+app.use("/",authRouter);  //AUTH ROUTER
+app.use("/",profileRouter); //PROFILE ROUTER
+app.use("/",connectionRequestRoutes) //CONNECTION REQ ROUTER
+app.use("/",userRouter);//USER ROUTER
 
-    if(!validateSignup(req)){
-        return;
-    }
-    if(! await validateEmail(req.body.email)){
-        return;
-    }
-       // ENCRYPT PASSWORD
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
+app.use("/",(req,res)=>{
 
-  //INSTANCE OF DOCUMENT CREATED
-    const User=new user({
-        email:req.body.email,
-        password:hashPassword,
-        name:req.body.name,
-        age:req.body.age,
-        skills:req.body.skills,
-        about:req.body.about,
-        profileImg:req.body.profileImg
-    })
-  //SAVE TO THE DATABASE
-    await User.save();
-
-
-    //CREATE JWT TOKEN 
-    const token=await User.getJWT();
-    res.cookie("token",token);
-    res.send(User);
-   
-
- 
-
-}catch(err){
-    console.log("error at server level "+err)
-    res.status(400).send(err.message);
-}
-
-})
-
-//SIGN IN 
-
-app.post("/signIn",async(req,res)=>{
-
-    try{
-      
-         //GET USER FROM DB
-         const foundUser=await user.findOne({email:req.body.email}); 
-        //CHECK IF EMAIL VALID 
-        if(!foundUser){
-            throw new Error("Email doesnt exist in db");
-        }
-        const isValidPass=await foundUser.validatePass(req.body.password)
-           //CHECK IF PASSWORD VALID &  //SEND USER AS A RESPONSE
-        if(isValidPass){
-
-            //create a jwt token
-
-            const token=await foundUser.getJWT(); //offload to schema method
-            console.log(token);
-
-
-            res.cookie("token",token);
-            res.send(foundUser);
-        }
-        else{
-            throw new Error("Password is invalid")
-        }
-        
-
-
-   
-
- 
-
-  
-
-    }
-    catch(err){
-        console.log("SignIn ERROR"+err);
-        res.status(400).send("signIn Error"+err.message)
-    }
-   
+    res.status(400).send("something wend wrong.path doesnt exist")
 })
 
 
 
 
-
-
-
-
-
-
-//PROFILE API
-
-app.get("/profile",auth,async(req,res)=>{
-
-    const foundUser=req?.foundUser;
-    res.status(200).send(foundUser);
-
-
-}
-)
 
 
  db()
@@ -140,7 +43,7 @@ app.get("/profile",auth,async(req,res)=>{
         }
     )
     .catch((err) => {
-        console.log("error while establishing connection")
+        console.log(`error while establishing connection ${err.message}`)
     })
 
 

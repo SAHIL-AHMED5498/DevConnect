@@ -51,12 +51,13 @@ const userSchema = new mongoose.Schema(
         if(value.length>=10){
             throw new Error("skills should be less than 10");
         }
-      }
+      },
+      default:["skill1","skill2","skill3"]
     },
 
     about: {
       type: String,
-      default: "hello i m new user ",
+      default: "new user ",
     },
 
   },
