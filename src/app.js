@@ -11,10 +11,20 @@ const cors=require("cors")
 const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";  // bind to all network interfaces
 
+const allowedOrigins = process.env.FRONTEND_URLS
+  ? process.env.FRONTEND_URLS.split(",")
+  : ["http://localhost:5173"];
+
 
 const app = express();
 app.use(cors({
-   origin: process.env.FRONTEND_URL || "http://localhost:5173",
+   origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS: " + origin));
+    }
+  },
     credentials:true
 }))
 app.use(express.json());
