@@ -7,26 +7,31 @@ const {profileRouter}=require("./routes/profile");
 const { connectionRequestRoutes } = require("./routes/connectionRequest");
 const { userRouter } = require("./routes/user");
 const cors=require("cors")
+const app = express();
+
+const allowedOrigins = [
+  "http://54.158.140.53",
+  "http://localhost:5173"
+];
+
+
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS: " + origin));
+      }
+    },
+    credentials: true,
+  })
+);
 
 const PORT = process.env.PORT || 3000;
 const HOST = "0.0.0.0";  // bind to all network interfaces
 
-const allowedOrigins = process.env.FRONTEND_URLS
-  ? process.env.FRONTEND_URLS.split(",")
-  : ["http://localhost:5173"];
-
-
-const app = express();
-app.use(cors({
-   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS: " + origin));
-    }
-  },
-    credentials:true
-}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

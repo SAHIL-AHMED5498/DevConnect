@@ -1,5 +1,8 @@
+require('dotenv').config();
 const jwt=require("jsonwebtoken");
 const {user}=require("../models/user");
+
+const jwtsecret=process.env.JWT_SECRET;
 
 
  const auth=async(req,res,next)=>{
@@ -10,7 +13,7 @@ try{
 
    
  //Verify token
-const decodedObj=await jwt.verify(token,"jwtwebtokensecret");
+const decodedObj=await jwt.verify(token,jwtsecret);
 
 const {_id}=decodedObj;
 
