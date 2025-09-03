@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const { validateSignup, validateEmail } = require("../utils/validateSignup");
 const { user } = require("../models/user");
 
+const {sendEmail}=require("../utils/sesClient")
+
 const authRouter = express.Router();
 
 //SIGN UP
@@ -35,6 +37,16 @@ authRouter.post("/signUp", async (req, res) => {
     //CREATE JWT TOKEN
     const token = await User.getJWT();
     res.cookie("token", token,{httpOnly:true,secure:false,sameSite:"Lax"});
+    
+
+     
+
+    await sendEmail({ 
+      to: "r862549@gmail.com",
+      subject: " Email from DevConnect 🚀",
+      html: `<h1>Hello!</h1><p>NEW USER ${User.email} SIGNED UP </p>`,
+    });
+
     res.send(User);
   } catch (err) {
     console.log("error at server level " + err);

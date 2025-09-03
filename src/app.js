@@ -8,6 +8,7 @@ const { connectionRequestRoutes } = require("./routes/connectionRequest");
 const { userRouter } = require("./routes/user");
 const cors=require("cors")
 const app = express();
+const {sendEmail} =require("./utils/sesClient");
 
 const allowedOrigins = [
   "http://54.158.140.53",
@@ -42,9 +43,25 @@ app.use("/",profileRouter); //PROFILE ROUTER
 app.use("/",connectionRequestRoutes) //CONNECTION REQ ROUTER
 app.use("/",userRouter);//USER ROUTER
 
+app.post("/test-email", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    await sendEmail({
+      to: email,
+      subject: "Test Email from DevConnect 🚀",
+      html: "<h1>Hello!</h1><p>This is a test email using AWS SES.</p>",
+    });
+
+    res.json({ success: true, message: "Email sent successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.use("/",(req,res)=>{
 
-    res.status(400).send("something wend wrong.path doesnt exist")
+    res.status(400).send("something went wrong..path doesnt exist")
 })
 
 
