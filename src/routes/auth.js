@@ -3,7 +3,8 @@ const bcrypt = require("bcrypt");
 const { validateSignup, validateEmail } = require("../utils/validateSignup");
 const { user } = require("../models/user");
 
-const {sendEmail}=require("../utils/sesClient")
+const {sendEmail}=require("../utils/sesClient");
+const { connectionRequestModel } = require("../models/connectionRequest");
 
 const authRouter = express.Router();
 
@@ -63,6 +64,16 @@ authRouter.post("/signIn", async (req, res) => {
     //CHECK IF EMAIL VALID
     if (!foundUser) {
       throw new Error("Email doesnt exist in db");
+    }
+    //Clean up connection request for guest user 
+    if(foundUser.email==="test1@gmail.com"){
+      
+      await connectionRequestModel.deleteMany({ $or: [
+      { fromUserId: foundUser._id },
+      { toUserId: foundUser._id }
+    ]})
+
+      //console.log("guest logged in ");
     }
     const isValidPass = await foundUser.validatePass(req.body.password); //offload to schema method
     //CHECK IF PASSWORD VALID &  //SEND USER AS A RESPONSE
