@@ -69,17 +69,5 @@ app.use("/",(req,res)=>{
 
 
 
- db()
-    .then(
-        () => {
-            console.log("connected to the db")
-            app.listen(PORT ,HOST, () => {
-              console.log(`🚀 Server running on port ${PORT}`);
-            })
-        }
-    )
-    .catch((err) => {
-        console.log(`error while establishing connection ${err.message}`)
-    })
-
+ 
 

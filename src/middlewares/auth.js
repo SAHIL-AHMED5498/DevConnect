@@ -6,12 +6,12 @@ const jwtsecret=process.env.JWT_SECRET;
 
 
  const auth=async(req,res,next)=>{
+
 //Extract token from the req body
 const cookie=req?.cookies;
 const {token}=cookie;
-try{
 
-   
+try{
  //Verify token
 const decodedObj=await jwt.verify(token,jwtsecret);
 

@@ -37,6 +37,7 @@ authRouter.post("/signUp", async (req, res) => {
 
     //CREATE JWT TOKEN
     const token = await User.getJWT();
+    
     res.cookie("token", token,{httpOnly:true,secure:false,sameSite:"Lax"});
     
 
@@ -49,11 +50,30 @@ authRouter.post("/signUp", async (req, res) => {
     });
 
     res.send(User);
-  } catch (err) {
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  catch (err) {
     console.log("error at server level " + err);
     res.status(400).send(err.message);
   }
 });
+
+
+
 
 //SIGN IN
 
